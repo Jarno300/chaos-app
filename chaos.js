@@ -28,8 +28,57 @@ const randomText = () => {
     "ENTROPY",
     "404",
     "SYSTEM CRASH",
+    "UNSTABLE",
+    "MELTDOWN",
+    "CORRUPTED",
+    "BROKEN",
+    "OVERLOAD",
   ];
   return words[randomNumber(0, words.length - 1)];
+};
+
+// Image APIs for random images
+const imageAPIs = [
+  // Random images from Picsum
+  () =>
+    `https://picsum.photos/${randomNumber(100, 300)}/${randomNumber(
+      100,
+      300
+    )}?random=${Date.now()}`,
+  // Unsplash random
+  () =>
+    `https://source.unsplash.com/random/${randomNumber(
+      100,
+      300
+    )}x${randomNumber(100, 300)}?chaos&sig=${Date.now()}`,
+  // Lorem Flickr
+  () =>
+    `https://loremflickr.com/${randomNumber(100, 300)}/${randomNumber(
+      100,
+      300
+    )}?random=${Date.now()}`,
+  // Placeholder (colorful)
+  () =>
+    `https://via.placeholder.com/${randomNumber(100, 300)}x${randomNumber(
+      100,
+      300
+    )}/${randomColor().slice(1)}/${randomColor().slice(
+      1
+    )}?text=${getRandomMultiChar()}`,
+  // Random fox
+  () => `https://randomfox.ca/images/${randomNumber(1, 120)}.jpg`,
+  // Random dog
+  () =>
+    `https://placedog.net/${randomNumber(200, 400)}/${randomNumber(
+      200,
+      400
+    )}?random=${Date.now()}`,
+];
+
+// Get random image URL from one of the image APIs
+const getRandomImageUrl = () => {
+  const randomAPI = imageAPIs[randomNumber(0, imageAPIs.length - 1)];
+  return randomAPI();
 };
 
 // Multi-language character sets
@@ -97,6 +146,21 @@ const chaosEmojis = [
   "👁️",
   "🌈",
   "🚨",
+  "🦄",
+  "🌋",
+  "🎡",
+  "🎢",
+  "🌠",
+  "👺",
+  "👹",
+  "🤡",
+  "💀",
+  "☠️",
+  "👻",
+  "👿",
+  "😵",
+  "🥴",
+  "🤯",
 ];
 const randomEmoji = () => chaosEmojis[randomNumber(0, chaosEmojis.length - 1)];
 
@@ -135,11 +199,258 @@ const createChaosSound = () => {
 let chaosElementsArray = [];
 let chaosInterval;
 let intensityLevel = 0;
+let backgroundEffectsInterval;
+let currentBackgroundEffect = null;
+
+// Background effects
+const backgroundEffects = {
+  waves: () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.zIndex = "-1";
+    canvas.style.opacity = "0.7";
+    canvas.style.mixBlendMode = "screen";
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d");
+    let time = 0;
+
+    const animate = () => {
+      if (canvas.parentNode !== document.body) return;
+
+      time += 0.05;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.strokeStyle = `hsl(${(time * 20 + i * 70) % 360}, 100%, 50%)`;
+        ctx.lineWidth = randomNumber(3, 8);
+
+        for (let x = 0; x < canvas.width; x += 10) {
+          const y =
+            Math.sin(x * 0.01 + time + i) * 50 +
+            Math.sin(x * 0.02 + time * 1.5) * 30 +
+            canvas.height / 2 +
+            i * 40;
+
+          if (x === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+
+        ctx.stroke();
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+    return canvas;
+  },
+
+  geometricPatterns: () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.zIndex = "-1";
+    canvas.style.opacity = "0.6";
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d");
+    let time = 0;
+
+    const animate = () => {
+      if (canvas.parentNode !== document.body) return;
+
+      time += 0.02;
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+
+      for (let i = 0; i < 10; i++) {
+        const size = 100 + Math.sin(time + i * 0.3) * 50;
+        const x = centerX + Math.sin(time * 0.7 + i) * 200;
+        const y = centerY + Math.cos(time * 0.5 + i) * 200;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(time * 0.5 + (i * Math.PI) / 5);
+
+        ctx.fillStyle = `hsl(${(time * 30 + i * 30) % 360}, 100%, 50%)`;
+
+        // Random shape
+        const shapeType = (i + Math.floor(time)) % 3;
+
+        if (shapeType === 0) {
+          // Square
+          ctx.fillRect(-size / 2, -size / 2, size, size);
+        } else if (shapeType === 1) {
+          // Triangle
+          ctx.beginPath();
+          ctx.moveTo(0, -size / 2);
+          ctx.lineTo(-size / 2, size / 2);
+          ctx.lineTo(size / 2, size / 2);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          // Circle
+          ctx.beginPath();
+          ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+    return canvas;
+  },
+
+  gradientPulse: () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.zIndex = "-1";
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d");
+    let time = 0;
+
+    const animate = () => {
+      if (canvas.parentNode !== document.body) return;
+
+      time += 0.01;
+
+      const gradient = ctx.createLinearGradient(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+      const hue1 = (time * 20) % 360;
+      const hue2 = (hue1 + 60) % 360;
+      const hue3 = (hue1 + 180) % 360;
+
+      gradient.addColorStop(0, `hsl(${hue1}, 100%, 50%)`);
+      gradient.addColorStop(0.5, `hsl(${hue2}, 100%, 50%)`);
+      gradient.addColorStop(1, `hsl(${hue3}, 100%, 50%)`);
+
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Add noise pattern
+      for (let i = 0; i < 100; i++) {
+        ctx.fillStyle = `rgba(0, 0, 0, ${Math.random() * 0.1})`;
+        ctx.fillRect(
+          Math.random() * canvas.width,
+          Math.random() * canvas.height,
+          Math.random() * 40 + 10,
+          Math.random() * 40 + 10
+        );
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+    return canvas;
+  },
+
+  matrixRain: () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    canvas.style.position = "fixed";
+    canvas.style.top = "0";
+    canvas.style.left = "0";
+    canvas.style.zIndex = "-1";
+    document.body.appendChild(canvas);
+
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const columns = Math.floor(canvas.width / 20);
+    const drops = [];
+
+    for (let i = 0; i < columns; i++) {
+      drops[i] = 1;
+    }
+
+    const animate = () => {
+      if (canvas.parentNode !== document.body) return;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = getRandomMultiChar();
+        const colorHue = (i * 5) % 360;
+        ctx.fillStyle = `hsla(${colorHue}, 100%, 50%, 0.8)`;
+        ctx.font = "20px monospace";
+        ctx.fillText(text, i * 20, drops[i] * 20);
+
+        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+
+        drops[i]++;
+      }
+
+      requestAnimationFrame(animate);
+    };
+
+    animate();
+    return canvas;
+  },
+};
+
+// Start a random background effect
+const startRandomBackgroundEffect = () => {
+  stopCurrentBackgroundEffect();
+
+  const effects = Object.keys(backgroundEffects);
+  const randomEffect = effects[randomNumber(0, effects.length - 1)];
+
+  currentBackgroundEffect = backgroundEffects[randomEffect]();
+
+  // Change background effect periodically
+  setTimeout(() => {
+    if (intensityLevel > 0) {
+      startRandomBackgroundEffect();
+    }
+  }, randomNumber(5000, 15000));
+};
+
+// Stop current background effect
+const stopCurrentBackgroundEffect = () => {
+  if (currentBackgroundEffect && currentBackgroundEffect.parentNode) {
+    currentBackgroundEffect.parentNode.removeChild(currentBackgroundEffect);
+  }
+  currentBackgroundEffect = null;
+};
 
 // Create a new chaos element
 const createChaosElement = () => {
-  // Expanded element types
-  const elementType = randomNumber(1, 7);
+  // Expanded element types with more variety
+  const elementType = randomNumber(1, 10);
   const element = document.createElement("div");
 
   switch (elementType) {
@@ -188,17 +499,16 @@ const createChaosElement = () => {
       element.style.left = randomPos(window.innerWidth - 150);
       element.style.top = randomPos(window.innerHeight - 150);
       break;
-    case 5: // Image from placeholder (chaos-looking pics)
+    case 5: // Random image from multiple APIs
       element.className = "chaos-element";
-      element.style.backgroundImage = `url(https://picsum.photos/${randomNumber(
-        100,
-        300
-      )}/${randomNumber(100, 300)}?random=${Date.now()})`;
+      element.style.backgroundImage = `url(${getRandomImageUrl()})`;
       element.style.backgroundSize = "cover";
       element.style.width = randomSize();
       element.style.height = element.style.width;
       element.style.left = randomPos(window.innerWidth - 150);
       element.style.top = randomPos(window.innerHeight - 150);
+      element.style.borderRadius = randomNumber(0, 100) + "%";
+      element.style.transform = randomRotate();
       break;
     case 6: // Random script character
       element.className = "text-element";
@@ -230,11 +540,72 @@ const createChaosElement = () => {
         15
       )}px ${randomColor()}`;
       break;
+    case 8: // Animated GIFs
+      element.className = "chaos-element";
+      // Use some fun animated GIFs
+      const gifUrls = [
+        "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjg3eHlrdXY5ZG8xb2VwM3FqMWR2aWVicnU5emZiM2NtbnYwcXFoNSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIPsx2VAYAgEHC12/giphy.gif",
+        "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeG03YTh0Nnkzamk3aDhkdHg5dWQ3Mm15YXU0MXI1OGVucnFpdzR1eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41YmQjOz9LE2dxpK/giphy.gif",
+        "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHp0bHJwaTl0bjVwZ244NzJkbWkxcnR2cTlzc3h3ZXRsN2VyZXozbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l41lFw057lAJfbBRe/giphy.gif",
+        "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExdnd2ZGx2ajdpcWt3anA5a2xpd2dobG9jZGxpaWxoZ2hienQ0eWR5NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26BRtW4zppWWjrsPu/giphy.gif",
+        "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnB5bjh0eTl6YmJiOTFwMXFvbWR5bTdzMTJ6OWNvMmtpdHhtd3ZxNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7aCQjeGXtWcEGjLO/giphy.gif",
+      ];
+      element.style.backgroundImage = `url(${
+        gifUrls[randomNumber(0, gifUrls.length - 1)]
+      })`;
+      element.style.backgroundSize = "cover";
+      element.style.width = randomSize();
+      element.style.height = element.style.width;
+      element.style.left = randomPos(window.innerWidth - 150);
+      element.style.top = randomPos(window.innerHeight - 150);
+      element.style.borderRadius = randomNumber(0, 100) + "%";
+      break;
+    case 9: // Glitchy photo
+      element.className = "chaos-element glitch";
+      element.style.backgroundImage = `url(${getRandomImageUrl()})`;
+      element.style.backgroundSize = "cover";
+      element.style.width = randomSize();
+      element.style.height = element.style.width;
+      element.style.left = randomPos(window.innerWidth - 150);
+      element.style.top = randomPos(window.innerHeight - 150);
+      element.style.clipPath = `polygon(${randomNumber(0, 20)}% ${randomNumber(
+        0,
+        20
+      )}%, ${randomNumber(80, 100)}% ${randomNumber(0, 20)}%, ${randomNumber(
+        80,
+        100
+      )}% ${randomNumber(80, 100)}%, ${randomNumber(0, 20)}% ${randomNumber(
+        80,
+        100
+      )}%)`;
+      break;
+    case 10: // Floating meme
+      element.className = "chaos-element";
+      // Intentionally use popular meme image URLs
+      const memeUrls = [
+        "https://i.kym-cdn.com/entries/icons/original/000/000/091/TrollFace.jpg",
+        "https://i.kym-cdn.com/entries/icons/original/000/013/564/doge.jpg",
+        "https://i.kym-cdn.com/entries/icons/original/000/026/489/crying.jpg",
+        "https://i.kym-cdn.com/entries/icons/original/000/022/940/mockingspongebobbb.jpg",
+        "https://i.kym-cdn.com/entries/icons/original/000/021/311/free.jpg",
+      ];
+      element.style.backgroundImage = `url(${
+        memeUrls[randomNumber(0, memeUrls.length - 1)]
+      })`;
+      element.style.backgroundSize = "cover";
+      element.style.width = randomSize();
+      element.style.height = element.style.width;
+      element.style.left = randomPos(window.innerWidth - 150);
+      element.style.top = randomPos(window.innerHeight - 150);
+      element.style.transform = randomRotate();
+      break;
   }
 
   // Add random effects to some elements
   if (randomNumber(1, 3) === 1) {
-    element.classList.add(["invert", "glitch", "shake"][randomNumber(0, 2)]);
+    element.classList.add(
+      ["invert", "glitch", "shake", "spin", "pulse"][randomNumber(0, 4)]
+    );
   }
 
   chaosElements.appendChild(element);
@@ -479,65 +850,75 @@ const increaseIntensity = () => {
   return Math.max(100, 1000 - intensityLevel * 100);
 };
 
-// Start chaos mode
+// Modified startChaos function to include our new background effects
 const startChaos = () => {
-  if (chaosInterval) return; // Already running
+  if (chaosInterval) clearInterval(chaosInterval);
 
-  // Reset intensity
-  intensityLevel = 0;
-
-  // Add chaos class to body
+  // Initialize or increase intensity
+  intensityLevel = Math.min(intensityLevel + 1, 5);
   document.body.classList.add("chaos-mode");
 
-  // Create initial elements
-  for (let i = 0; i < 15; i++) {
-    createChaosElement();
-  }
+  // Start background effects
+  startRandomBackgroundEffect();
 
-  // Initial character rain
-  createCharacterRain();
-
-  // Start chaos intervals
+  // Create more elements based on intensity level
+  const creationRate = Math.max(500 - intensityLevel * 100, 100);
   chaosInterval = setInterval(() => {
-    // Create new element
-    if (chaosElementsArray.length < 50 + intensityLevel * 5) {
+    for (let i = 0; i < intensityLevel; i++) {
       createChaosElement();
+
+      // Add sound at higher intensities
+      if (intensityLevel > 2 && randomNumber(1, 5) === 1) {
+        createChaosSound();
+      }
     }
 
-    // Random DOM chaos
-    randomDomChaos();
+    // Random DOM modifications at higher intensity levels
+    if (intensityLevel > 3 && randomNumber(1, 10) === 1) {
+      randomDomChaos();
+    }
 
-    // Adjust interval time to increase intensity
-    clearInterval(chaosInterval);
-    chaosInterval = setInterval(startChaos, increaseIntensity());
-  }, 1000);
+    // Create special effects at higher intensities
+    if (intensityLevel > 2) {
+      if (randomNumber(1, 20) === 1) createCharacterRain();
+      if (randomNumber(1, 15) === 1) createFloatingScriptText();
+    }
+  }, creationRate);
 };
 
-// Reset chaos
+// Modified resetChaos function to properly clean up all effects
 const resetChaos = () => {
-  clearInterval(chaosInterval);
+  if (chaosInterval) clearInterval(chaosInterval);
   chaosInterval = null;
 
-  // Remove all elements
+  // Clear background effects
+  stopCurrentBackgroundEffect();
+
+  // Remove all chaos elements
   while (chaosElements.firstChild) {
     chaosElements.removeChild(chaosElements.firstChild);
   }
-
   chaosElementsArray = [];
 
-  // Reset styles
-  document.body.classList.remove("chaos-mode");
-  document.body.style.filter = "";
-  document.body.style.cursor = "default";
-  document.body.style.backgroundColor = "#000";
-  document.body.classList.remove("shake");
-
   // Reset title
-  chaosTitle.textContent = "CHAOS";
-  chaosTitle.style.color = "#ff00ff";
-  chaosTitle.style.fontSize = "5rem";
-  chaosTitle.style.filter = "";
-  chaosTitle.style.transform = "translate(-50%, -50%) rotate(0deg)";
+  const titles = document.querySelectorAll("#chaotic-title");
+  titles.forEach((title) => {
+    title.style.animation = "";
+    title.style.transform = "translate(-50%, -50%)";
+    title.style.color = "#ff0000";
+    title.style.textShadow =
+      "0 0 10px #ff00ff, 0 0 20px #ffff00, -4px 0 0 #00ffff, 4px 0 0 #ff0000";
+  });
+
+  // Remove any added canvas elements
+  document.querySelectorAll("canvas").forEach((canvas) => {
+    if (canvas.parentNode) {
+      canvas.parentNode.removeChild(canvas);
+    }
+  });
+
+  document.body.classList.remove("chaos-mode");
+  intensityLevel = 0;
 };
 
 // Event listeners
